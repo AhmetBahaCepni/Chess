@@ -5,7 +5,14 @@ void gameLoop(Board& board)
 {
     while (!board.isGameOver())
     {
+        board.fillThreads();
+        board.updatePieces();
+        board.calculatePoints();
         board.printBoard();
+
+        board.printThreads(0); // Debugging purposes
+        board.printThreads(1); // Debugging purposes
+
         std::string input = board.takeInput();
         while(board.isValidMove(input) == false)
         {

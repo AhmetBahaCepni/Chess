@@ -1,81 +1,58 @@
 #include "../libraries/Board.hpp"
 
-Board::Board() {
-    std::vector< std::vector<Piece> > board(8, std::vector<Piece>(8));
-    std::vector<Piece> whiteP;
-    std::vector<Piece> blackP;
+int min(int n1, int n2)
+{
+    return (n1>n2 ? n2 : n1);
+}
 
-    board[0][0] = Piece('R', 1, 0, 0, 5);
-    board[0][1] = Piece('N', 1, 1, 0, 3);
-    board[0][2] = Piece('B', 1, 2, 0, 3);
-    board[0][3] = Piece('Q', 1, 3, 0, 9);
-    board[0][4] = Piece('K', 1, 4, 0, 0);
-    board[0][5] = Piece('B', 1, 5, 0, 3);
-    board[0][6] = Piece('N', 1, 6, 0, 3);
-    board[0][7] = Piece('R', 1, 7, 0, 5);
+int max(int n1, int n2)
+{
+    return (n1>n2 ? n1 : n2);
+}
+
+Board::Board() {
+    std::vector< std::vector<Piece> > _board(8, std::vector<Piece>(8));
+    std::vector< std::vector<bool> > _wThreads(8, std::vector<bool>(8));
+    std::vector< std::vector<bool> > _bThreads(8, std::vector<bool>(8));
+    std::vector< double > _points(2);
+
+    _board[0][0] = Piece('R', 1, 0, 0, 5);
+    _board[0][1] = Piece('N', 1, 1, 0, 3);
+    _board[0][2] = Piece('B', 1, 2, 0, 3);
+    _board[0][3] = Piece('Q', 1, 3, 0, 9);
+    _board[0][4] = Piece('K', 1, 4, 0, 0);
+    _board[0][5] = Piece('B', 1, 5, 0, 3);
+    _board[0][6] = Piece('N', 1, 6, 0, 3);
+    _board[0][7] = Piece('R', 1, 7, 0, 5);
     for (int i = 0; i < 8; i++) {
-        board[1][i] = Piece('P', 1, i, 1, 1);
+        _board[1][i] = Piece('P', 1, i, 1, 1);
     }
 
-    board[7][0] = Piece('r', 0, 0, 7, 5);
-    board[7][1] = Piece('n', 0, 1, 7, 3);
-    board[7][2] = Piece('b', 0, 2, 7, 3);
-    board[7][3] = Piece('q', 0, 3, 7, 9);
-    board[7][4] = Piece('k', 0, 4, 7, 0);
-    board[7][5] = Piece('b', 0, 5, 7, 3);
-    board[7][6] = Piece('n', 0, 6, 7, 3);
-    board[7][7] = Piece('r', 0, 7, 7, 5);
+    _board[7][0] = Piece('r', 0, 0, 7, 5);
+    _board[7][1] = Piece('n', 0, 1, 7, 3);
+    _board[7][2] = Piece('b', 0, 2, 7, 3);
+    _board[7][3] = Piece('q', 0, 3, 7, 9);
+    _board[7][4] = Piece('k', 0, 4, 7, 0);
+    _board[7][5] = Piece('b', 0, 5, 7, 3);
+    _board[7][6] = Piece('n', 0, 6, 7, 3);
+    _board[7][7] = Piece('r', 0, 7, 7, 5);
     for (int i = 0; i < 8; i++) {
-        board[6][i] = Piece('p', 0, i, 6, 1);
+        _board[6][i] = Piece('p', 0, i, 6, 1);
     }
 
     for (int i = 2; i < 6; i++) {
         for (int j = 0; j < 8; j++) {
-            board[i][j] = Piece('.', 0, j, i, 0);
+            _board[i][j] = Piece('.', 0, j, i, 0);
         }
     }
 
-    // blackP.push_back(Piece('r', 0, 0, 0, 5));
-    // blackP.push_back(Piece('n', 0, 0, 1, 3));
-    // blackP.push_back(Piece('b', 0, 0, 2, 3));
-    // blackP.push_back(Piece('q', 0, 0, 3, 9));
-    // blackP.push_back(Piece('k', 0, 0, 4, 0));
-    // blackP.push_back(Piece('b', 0, 0, 5, 3));
-    // blackP.push_back(Piece('n', 0, 0, 6, 3));
-    // blackP.push_back(Piece('r', 0, 0, 7, 5));
-    // for (int i = 0; i < 8; i++) {
-    //     blackP.push_back(Piece('p', 0, 1, i, 1));
-    // }
-
-    // whiteP.push_back(Piece('R', 1, 7, 0, 5));
-    // whiteP.push_back(Piece('N', 1, 7, 1, 3));
-    // whiteP.push_back(Piece('B', 1, 7, 2, 3));
-    // whiteP.push_back(Piece('Q', 1, 7, 3, 9));
-    // whiteP.push_back(Piece('K', 1, 7, 4, 0));
-    // whiteP.push_back(Piece('B', 1, 7, 5, 3));
-    // whiteP.push_back(Piece('N', 1, 7, 6, 3));
-    // whiteP.push_back(Piece('R', 1, 7, 7, 5));
-    // for (int i = 0; i < 8; i++) {
-    //     whiteP.push_back(Piece('P', 1, 6, i, 1));
-    // }
-
-    // for (Piece p : blackP) {
-    //     board[p.getX()][p.getY()] = p;
-    // }
-    // for (Piece p : whiteP) {
-    //     board[p.getX()][p.getY()] = p;
-    // }
-    // for (int i = 2; i < 6; i++) {
-    //     for (int j = 0; j < 8; j++) {
-    //         board[i][j] = Piece('.', 0, i, j, 0);
-    //     }
-    // }
 
     this->turn = 1;
     this->gameOver = 0;
-    this->board = board;
-    this->whiteP = whiteP;
-    this->blackP = blackP;
+    this->board = _board;
+    this->wThreads = _wThreads;
+    this->bThreads = _bThreads;
+    this->points = _points;
 }
 
 Board::~Board() {
@@ -96,6 +73,9 @@ Board& Board::operator=(const Board& other) {
 }
 
 void Board::printBoard() {
+    std::cout << "---------------------------" << std::endl;
+    std::cout << "current points (W-B):  " << points[0] << " - " << points[1] << std::endl;
+
     std::cout << std::endl;
     for (int i = 7; i >= 0; i--) {
         std::cout << i + 1 << " | ";
@@ -128,6 +108,197 @@ std::string Board::takeInput() {
     return input;
 }
 
+void Board::updatePieces()
+{
+    for (auto &line : board)
+    {
+        for (auto &piece : line)
+        {
+            if(piece.getType() != '.')
+            {
+                bool color = piece.getColor();
+
+                if (!color && wThreads[piece.getY()][piece.getX()])
+                {
+                    piece.setUnderAttack(true);
+                }
+                else if (color && bThreads[piece.getY()][piece.getX()])
+                {
+                    piece.setUnderAttack(true);
+                }
+            }
+        }
+    }
+}
+
+void Board::fillThreads()
+{
+    for (auto &line : board)
+    {
+        for (auto &piece : line)
+        {
+            if(piece.getType() != '.')
+            {
+                findAndFill(piece);
+            }
+        }
+    }
+}
+
+void Board::fillThCell(int x, int y, bool color)
+{
+    if(x < 0 || x > 7 || y < 0 || y > 7)
+        return;
+    if(!isFriend(x, y, color))
+    {
+        if(color)
+            wThreads[y][x] = 1;
+        else
+            bThreads[y][x] = 1;
+    }
+}
+
+void Board::rookThreads(Piece &p)
+{
+    for (int i = p.getX() + 1; i < 8; i++)
+    {
+        if(isPiece(i, p.getY()))
+        {
+            if(isOpponent(i, p.getY()))
+                fillThCell(i, p.getY(), p.getColor());
+            break;
+        }
+        fillThCell(i, p.getY(), p.getColor());
+    }
+    for (int i = p.getX() - 1; i >= 0; i--)
+    {
+        if(isPiece(i, p.getY()))
+        {
+            if(isOpponent(i, p.getY()))
+                fillThCell(i, p.getY(), p.getColor());
+            break;
+        }
+        fillThCell(i, p.getY(), p.getColor());
+    }
+    for (int i = p.getY() + 1; i < 8; i++)
+    {
+        if(isPiece(p.getX(), i))
+        {
+            if(isOpponent(p.getX(), i))
+                fillThCell(p.getX(), i, p.getColor());
+            break;
+        }
+        fillThCell(p.getX(), i, p.getColor());
+    }
+    for (int i = p.getY() - 1; i >= 0; i--)
+    {
+        if(isPiece(p.getX(), i))
+        {
+            if(isOpponent(p.getX(), i))
+                fillThCell(p.getX(), i, p.getColor());
+            break;
+        }
+        fillThCell(p.getX(), i, p.getColor());
+    }
+}
+
+void Board::bishopThreads(Piece &p)
+{
+    for (int i = p.getX() + 1, j = p.getY() + 1; i < 8 && j < 8; i++, j++)
+    {
+        if(isPiece(i, j))
+        {
+            if(isOpponent(i, j))
+                fillThCell(i, j, p.getColor());
+            break;
+        }
+        fillThCell(i, j, p.getColor());
+    }
+    for (int i = p.getX() - 1, j = p.getY() + 1; i >= 0 && j < 8; i--, j++)
+    {
+        if(isPiece(i, j))
+        {
+            if(isOpponent(i, j))
+                fillThCell(i, j, p.getColor());
+            break;
+        }
+        fillThCell(i, j, p.getColor());
+    }
+    for (int i = p.getX() + 1, j = p.getY() - 1; i < 8 && j >= 0; i++, j--)
+    {
+        if(isPiece(i, j))
+        {
+            if(isOpponent(i, j))
+                fillThCell(i, j, p.getColor());
+            break;
+        }
+        fillThCell(i, j, p.getColor());
+    }
+    for (int i = p.getX() - 1, j = p.getY() - 1; i >= 0 && j >= 0; i--, j--)
+    {
+        if(isPiece(i, j))
+        {
+            if(isOpponent(i, j))
+                fillThCell(i, j, p.getColor());
+            break;
+        }
+        fillThCell(i, j, p.getColor());
+    }
+}
+
+void Board::findAndFill(Piece &p)
+{
+    int type = p.getType();
+    if(type != 'P')
+        type = tolower(type);
+
+    switch (type)
+    {
+        case 80: // P
+            fillThCell(p.getX() + 1, p.getY() + 1, p.getColor());
+            fillThCell(p.getX() - 1, p.getY() + 1, p.getColor());
+            break;
+        case 112: // p 
+            fillThCell(p.getX() + 1, p.getY() - 1, p.getColor());
+            fillThCell(p.getX() - 1, p.getY() - 1, p.getColor());
+            break;
+        case 114: // r
+            rookThreads(p);
+            break;
+        case 98: // b
+            bishopThreads(p);
+            break;
+        case 113: // q
+            rookThreads(p);
+            bishopThreads(p);
+            break;
+        case 107: // k
+            fillThCell(p.getX() + 1, p.getY() + 1, p.getColor());
+            fillThCell(p.getX() - 1, p.getY() + 1, p.getColor());
+            fillThCell(p.getX() + 1, p.getY() - 1, p.getColor());
+            fillThCell(p.getX() - 1, p.getY() - 1, p.getColor());
+            fillThCell(p.getX() + 1, p.getY(), p.getColor());
+            fillThCell(p.getX() - 1, p.getY(), p.getColor());
+            fillThCell(p.getX(), p.getY() + 1, p.getColor());
+            fillThCell(p.getX(), p.getY() - 1, p.getColor());
+            break;
+        case 110: // n
+            fillThCell(p.getX() + 2, p.getY() + 1, p.getColor());
+            fillThCell(p.getX() + 2, p.getY() - 1, p.getColor());
+            fillThCell(p.getX() - 2, p.getY() + 1, p.getColor());
+            fillThCell(p.getX() - 2, p.getY() - 1, p.getColor());
+            fillThCell(p.getX() + 1, p.getY() + 2, p.getColor());
+            fillThCell(p.getX() + 1, p.getY() - 2, p.getColor());
+            fillThCell(p.getX() - 1, p.getY() + 2, p.getColor());
+            fillThCell(p.getX() - 1, p.getY() - 2, p.getColor());
+            break;
+        default:
+            std::cout << "!!!!!!!!!! This should not happen !!!!!!!!!!" << std::endl;
+            std::cout << type << std::endl;
+            break;
+    }
+}
+
 bool Board::isValidMove(std::string input) {
     int startX = input[0] - 'a';
     int startY = input[1] - '1';
@@ -152,35 +323,87 @@ bool Board::pieceChecks(int Sx, int Sy, int Ex, int Ey)
     Piece &start = getPiece(Sx, Sy);
     Piece &end = getPiece(Ex, Ey);
 
-    char type = start.getType();
+    int type = start.getType();
     if(type != 'P')
         type = tolower(type);
 
-    switch (start.getType())
+    switch (type)
     {
-    case 'P':
+    case 80: // P
         if (start.getX() == end.getX())
         {
-            if(end.getY() - start.getY() > 2 || end.getY() - start.getY() < 1)
-                return false;
+            if(start.getY() == 1)
+            {
+                if(end.getY() - start.getY() > 2 || end.getY() - start.getY() < 1)
+                    return false;
+                if(!checkPath(Sx, Sy, Ex, Ey))
+                    return false;
+            }
+            else
+            {
+                if(end.getY() - start.getY() != 1)
+                    return false;
+            }
             if(isPiece(Ex, Ey))
-                return false;
-            if(!checkPath(Sx, Sy, Ex, Ey))
                 return false;
         }
         break;
+    case 112: // p 
+        if (start.getX() == end.getX())
+        {
+            if(start.getY() == 6)
+            {
+                if(start.getY() - end.getY() > 2 || start.getY() - end.getY() < 1)
+                    return false;
+                if(!checkPath(Sx, Sy, Ex, Ey))
+                    return false;
+            }
+            else
+            {
+                if(start.getY() - end.getY() != 1)
+                    return false;
+            }
+            if(isPiece(Ex, Ey))
+                return false;
+        }
+        break;
+    case 114: // r
+        if (start.getX() != end.getX() && start.getY() != end.getY())
+            return false;
+        if(!checkPath(Sx, Sy, Ex, Ey))
+            return false;
+        break;
+    case 98: // b
+        if (abs(start.getX() - end.getX()) != abs(start.getY() - end.getY()))
+            return false;
+        if(!checkPath(Sx, Sy, Ex, Ey))
+            return false;
+        break;
+    case 113: // q
+        if (start.getX() != end.getX() && start.getY() != end.getY())
+        {
+            if (abs(start.getX() - end.getX()) != abs(start.getY() - end.getY()))
+                return false;
+        }
+        if(!checkPath(Sx, Sy, Ex, Ey))
+            return false;
+        break;
+    case 107: // k
+        if (abs(start.getX() - end.getX()) > 1 || abs(start.getY() - end.getY()) > 1)
+            return false;
+        break;
+    case 110: // n
+        if (abs(start.getX() - end.getX()) == 2 && abs(start.getY() - end.getY()) == 1)
+            return true;
+        if (abs(start.getX() - end.getX()) == 1 && abs(start.getY() - end.getY()) == 2)
+            return true;
+        return false;
+        break;
+    default:
+        std::cout << type << std::endl;
+        break;
     }
     return true;
-}
-
-int min(int n1, int n2)
-{
-    return (n1>n2 ? n2 : n1);
-}
-
-int max(int n1, int n2)
-{
-    return (n1>n2 ? n1 : n2);
 }
 
 bool Board::checkPath(int Sx, int Sy, int Ex, int Ey)
@@ -209,22 +432,49 @@ bool Board::checkPath(int Sx, int Sy, int Ex, int Ey)
     }
     else if (abs(Sx - Ex) == abs(Sy - Ey))
     {
-        // minX = min(Sx, Ex);
-        // maxX = max(Sx, Ex);
-        // minY = min(Sy, Ey);
-        // maxY = max(Sy, Ey);
+        if((Sx - Ex > 0 && Sy - Ey > 0) || (Sx - Ex < 0 && Sy - Ey < 0))
+        {
+            std::cout << "diagonal 1" << std::endl;
+            minX = min(Sx, Ex);
+            minY = min(Sy, Ey);
+            maxX = max(Sx, Ex);
+            maxY = max(Sy, Ey);
 
-        // while(minX < maxX && minY < maxY)
-        // {
-        //     minX++;
-        //     minY++;
-        //     if(isPiece(minX))
-        // }
+            minX++;
+            minY++;
+            while (minX < maxX && minY < maxY)
+            {
+                std::cout << minX << " " << minY << std::endl;
+                if(isPiece(minX, minY))
+                    return false;
+                minY++;
+                minX++;
+            }
+        }
+        else{
+            std::cout << "diagonal 2" << std::endl;
+            minX = min(Sx, Ex);
+            minY = max(Sy, Ey);
+            maxX = max(Sx, Ex);
+            maxY = min(Sy, Ey);
+
+            minX++;
+            minY--;
+            while (minX < maxX && minY > maxY)
+            {
+                std::cout << minX << " " << minY << std::endl;
+                if(isPiece(minX, minY))
+                    return false;
+                minX++;
+                minY--;
+            }
+        }
     }
 
 
     return true;
 }
+// we can see all ports and ssh port with shell command
 
 void Board::movePiece(std::string input) {
     int startX = input[0] - 'a';
@@ -263,6 +513,30 @@ void Board::swapPieces(int Sx, int Sy, int Ex, int Ey)
     board[Sy][Sx] = end;
 }
 
+void Board::calculatePoints()
+{
+    double wPoints = 0;
+    double bPoints = 0;
+
+    for (auto &line : board)
+    {
+        for (auto &piece : line)
+        {
+            if(piece.getType() != '.')
+            {
+                if(piece.getUnderAttack())
+                    std::cout << piece.getType() << " " << piece.getX() << " " << piece.getY() << std::endl;
+                if(piece.getColor())
+                    wPoints += piece.getUnderAttack() ? piece.getPoint() / 2 : piece.getPoint();
+                else
+                    bPoints += piece.getUnderAttack() ? piece.getPoint() / 2 : piece.getPoint();
+            }
+        }
+    }
+    points[0] = wPoints;
+    points[1] = bPoints;
+}
+
 bool Board::whoTurn() {
     return this->turn;
 }
@@ -287,6 +561,10 @@ bool Board::isFriend(int x, int y) {
     return (isPiece(x, y) && getPiece(x, y).getColor() == whoTurn());
 }
 
+bool Board::isFriend(int x, int y, bool color) {
+    return (isPiece(x, y) && getPiece(x, y).getColor() == color);
+}
+
 bool Board::isBlack(int x, int y) {
     return (isPiece(x, y) && getPiece(x, y).getColor() == 0);
 }
@@ -297,4 +575,25 @@ bool Board::isWhite(int x, int y) {
 
 Piece& Board::getPiece(int x, int y) {
     return this->board[y][x];
+}
+
+
+// DEBUGGING PURPOSES
+
+void Board::printThreads(bool color)
+{
+    std::vector< std::vector<bool> > &threads = (color ? wThreads : bThreads);
+
+    color ? std::cout << std::endl << "White Threads:" << std::endl : std::cout << "Black Threads:" << std::endl;
+
+    std::cout << std::endl;
+    for (int i = 7; i >= 0; i--) {
+        for (int j = 0; j < 8; j++) {
+            std::cout << threads[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "    - - - - - - - -" << std::endl;
+    std::cout << "    ";
+    std::cout << std::endl;
 }

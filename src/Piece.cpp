@@ -6,14 +6,16 @@ Piece::Piece() {
     this->y = -1;
     this->point = 0;
     this->color = 0;
+    this->isUnderAttack = false;
 }
 
-Piece::Piece(char _type, bool color, int x, int y, int point) {
+Piece::Piece(char _type, bool color, int x, int y, double point) {
     this->type = _type;
     this->color = color;
     this->x = x;
     this->y = y;
     this->point = point;
+    this->isUnderAttack = false;
 }
 
 Piece::~Piece() {
@@ -31,6 +33,7 @@ Piece& Piece::operator=(const Piece& other) {
         this->x = other.x;
         this->y = other.y;
         this->point = other.point;
+        this->isUnderAttack = other.isUnderAttack;
     }
     return *this;
 }
@@ -51,12 +54,20 @@ int Piece::getY() {
     return this->y;
 }
 
-int Piece::getPoint() {
+double Piece::getPoint() {
     return this->point;
+}
+
+bool Piece::getUnderAttack() {
+    return this->isUnderAttack;
 }
 
 void Piece::setType(char type) {
     this->type = type;
+}
+
+void Piece::setUnderAttack(bool state) {
+    this->isUnderAttack = state;
 }
 
 void Piece::setCoords(int x, int y) {
