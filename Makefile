@@ -1,6 +1,6 @@
 NAME	:= chess
 
-CC		:= gcc 
+CC		:= c++ 
 INCLUDE	:= ./libraries
 CFLAGS	:= 
 FLAGS	= #-Wall -Wextra -Werror

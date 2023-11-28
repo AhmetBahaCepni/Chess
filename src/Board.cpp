@@ -133,14 +133,20 @@ void Board::updatePieces()
 
 void Board::fillThreads()
 {
+    for(int i = 0; i < 8 ; i++)
+    {
+        for(int j = 0; j < 8; j++)
+        {
+            wThreads[i][j] = 0;
+            bThreads[i][j] = 0;
+        }
+    }
     for (auto &line : board)
     {
         for (auto &piece : line)
         {
             if(piece.getType() != '.')
-            {
                 findAndFill(piece);
-            }
         }
     }
 }
@@ -347,6 +353,13 @@ bool Board::pieceChecks(int Sx, int Sy, int Ex, int Ey)
             if(isPiece(Ex, Ey))
                 return false;
         }
+        else if(end.getY() - start.getY() == 1 && abs(start.getX() - end.getX()) == 1)
+        {
+            if(!isOpponent(Ex, Ey))
+                return false;
+        }
+        else
+            return false;
         break;
     case 112: // p 
         if (start.getX() == end.getX())
@@ -366,6 +379,13 @@ bool Board::pieceChecks(int Sx, int Sy, int Ex, int Ey)
             if(isPiece(Ex, Ey))
                 return false;
         }
+        else if(start.getY() - end.getY() == 1 && abs(start.getX() - end.getX()) == 1)
+        {
+            if(!isOpponent(Ex, Ey))
+                return false;
+        }
+        else
+            return false;
         break;
     case 114: // r
         if (start.getX() != end.getX() && start.getY() != end.getY())
@@ -470,8 +490,6 @@ bool Board::checkPath(int Sx, int Sy, int Ex, int Ey)
             }
         }
     }
-
-
     return true;
 }
 // we can see all ports and ssh port with shell command
