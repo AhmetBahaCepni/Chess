@@ -3,13 +3,9 @@
 
 void gameLoop(Board& board)
 {
+    board.printBoard();
     while (!board.isGameOver())
     {
-        board.fillThreads();
-        board.updatePieces();
-        board.calculatePoints();
-        board.printBoard();
-
         board.printThreads(0); // Debugging purposes
         board.printThreads(1); // Debugging purposes
 
@@ -22,6 +18,10 @@ void gameLoop(Board& board)
         }
         board.movePiece(input);
         
+        board.fillThreads();
+        board.updatePieces();
+        board.calculatePoints();
+        board.printBoard();
         board.nextTurn();
     }
 }

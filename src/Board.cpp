@@ -170,8 +170,8 @@ void Board::rookThreads(Piece &p)
     {
         if(isPiece(i, p.getY()))
         {
-            if(isOpponent(i, p.getY()))
-                fillThCell(i, p.getY(), p.getColor());
+            if(isOpponent(i, p.getY())){ std::cout << "rookThreads" << p.getType() << i << "," << p.getY() << std::endl;
+                fillThCell(i, p.getY(), p.getColor());}
             break;
         }
         fillThCell(i, p.getY(), p.getColor());
@@ -180,8 +180,8 @@ void Board::rookThreads(Piece &p)
     {
         if(isPiece(i, p.getY()))
         {
-            if(isOpponent(i, p.getY()))
-                fillThCell(i, p.getY(), p.getColor());
+            if(isOpponent(i, p.getY())){ std::cout << "rookThreads" << p.getType() << i << "," << p.getY() << std::endl;
+                fillThCell(i, p.getY(), p.getColor());}
             break;
         }
         fillThCell(i, p.getY(), p.getColor());
@@ -190,8 +190,8 @@ void Board::rookThreads(Piece &p)
     {
         if(isPiece(p.getX(), i))
         {
-            if(isOpponent(p.getX(), i))
-                fillThCell(p.getX(), i, p.getColor());
+            if(isOpponent(p.getX(), i)){ std::cout << "rookThreads" << p.getType() << i << "," << p.getY() << std::endl;
+                fillThCell(p.getX(), i, p.getColor());}
             break;
         }
         fillThCell(p.getX(), i, p.getColor());
@@ -200,8 +200,8 @@ void Board::rookThreads(Piece &p)
     {
         if(isPiece(p.getX(), i))
         {
-            if(isOpponent(p.getX(), i))
-                fillThCell(p.getX(), i, p.getColor());
+            if(isOpponent(p.getX(), i)){ std::cout << "rookThreads" << p.getType() << i << "," << p.getY() << std::endl;
+                fillThCell(p.getX(), i, p.getColor());}
             break;
         }
         fillThCell(p.getX(), i, p.getColor());
