@@ -1,9 +1,11 @@
 #include "../libraries/Board.hpp"
 
-
 void gameLoop(Board& board)
 {
-    board.printBoard();
+    #include <iostream> // Add missing import
+
+    std::cout << "Welcome to Chess!" << std::endl;
+    std::cout << board << std::endl;
     while (!board.isGameOver())
     {
         board.printThreads(0); // Debugging purposes
@@ -14,14 +16,17 @@ void gameLoop(Board& board)
         {
             std::cout << "Invalid move, try again" << std::endl;
             input = board.takeInput();
-            board.printBoard();
+            std::cout << board << std::endl;
         }
         board.movePiece(input);
         
         board.fillThreads();
         board.updatePieces();
         board.calculatePoints();
-        board.printBoard();
+
+        board.isCheck();
+
+        std::cout << board << std::endl;
         board.nextTurn();
     }
 }
