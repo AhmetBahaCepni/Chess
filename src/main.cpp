@@ -2,13 +2,19 @@
 
 bool gameLoop(Board& board)
 {
-    #include <iostream> // Add missing import
-
-    std::cout << "Welcome to Chess!" << std::endl;
     std::cout << board << std::endl;
+    board.updateBoard();
     while (!board.isGameOver())
     {
         std::string input = board.takeInput();
+        if(input == "special")
+        {
+            board.updateBoard();
+            board.nextTurn();
+            std::cout << board << std::endl;
+            continue;
+        }
+        std::cout << input << std::endl;
         while(board.isValidMove(input) == false)
         {
             std::cout << "Invalid move, try again" << std::endl;
@@ -24,15 +30,8 @@ bool gameLoop(Board& board)
             else
                 std::cout << "You should sace your king from check" << std::endl;
             board.undoMove(input);
-            
-            board.printThreads(0); // Debugging purposes
-            board.printThreads(1); // Debugging purposes
-        
             continue;
         }
-
-        board.printThreads(0); // Debugging purposes
-        board.printThreads(1); // Debugging purposes
         
         std::cout << board << std::endl;
 
@@ -59,19 +58,13 @@ bool gameLoop(Board& board)
 
 void fileOperations(Board& board)
 {
-    std::ifstream saveFile("save.txt");
+    std::ifstream saveFile("log/save.txt");
     //if save.txt is not empty, ask if the user wants to load the game or start a new one
     if(saveFile.peek() != std::ifstream::traits_type::eof())
     {
-        std::cout << "Do you want to load the game? (y/n)" << std::endl << ">> ";
-        char answer;
-        std::cin >> answer;
-        if(answer == 'y')
-        {
-            std::cout << "Loading game..." << std::endl;
-            board.loadGame();
-            std::cout << board.whoTurn() << std::endl;
-        }
+        std::cout << "Loading game..." << std::endl;
+        board.loadGame();
+        std::cout << board.whoTurn() << std::endl;
     }
 }
 
@@ -91,10 +84,46 @@ int main(void)
 {
     Board board;
     bool winner;
-
+    int choice;
     std::cout << "Welcome to Chess!" << std::endl;
-    fileOperations(board);
-    std::cout << "sdaljakşiş" << std::endl;
+    while(true)
+    {
+        std::cout << "1. New Game" << std::endl;
+        std::cout << "2. Load Game" << std::endl;
+        std::cout << "3. Help" << std::endl;
+        std::cout << "4. Exit" << std::endl;
+        std::cout << ">> ";
+        std::cin >> choice;
+        if(choice == 1)
+        {
+            break;
+        }
+        else if(choice == 2)
+        {
+            fileOperations(board);
+            break;
+        }
+        else if(choice == 3)
+        {
+            std::cout << "This is a simple Chess game." << std::endl;
+            std::cout << "Why do you need help dont you know how to play chess?" << std::endl;
+            std::cout << "Just kidding, example moves are a1a3, b7c5, etc." << std::endl;
+            std::cout << "You can save the game by typing save." << std::endl;
+            std::cout << "You can get a move hint by typing suggest." << std::endl;
+            std::cout << "You can castle by typing O-O for short castle and O-O-O for long castle." << std::endl;
+            std::cout << "You can exit the game by typing exit." << std::endl << std::endl;
+            continue;
+        }
+        else if(choice == 4)
+        {
+            std::cout << "Goodbye!" << std::endl;
+            return 0;
+        }
+        else
+        {
+            std::cout << "Invalid choice, try again" << std::endl;
+        }
+    }
     winner = gameLoop(board);
     winnerMessage(winner);
 

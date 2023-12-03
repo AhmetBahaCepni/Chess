@@ -47,6 +47,8 @@ Piece& Piece::operator=(const Piece& other) {
 void Piece::insertMove(int x, int y)
 {
     std::string move = "";
+    move += (char)(this->x + 'a');
+    move += (char)(this->y + '1');
     move += (char)(x + 'a');
     move += (char)(y + '1');
     moves.push_back(move);
