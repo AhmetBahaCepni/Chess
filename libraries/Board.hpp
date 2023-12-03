@@ -61,7 +61,7 @@ class Board{
 
         // Suggest AI functions
         void suggestMove(bool color);
-
+        std::vector<std::string> getPossibleMoves(bool color);
         // special functions
         char promotePawn();
         void castle(bool color, bool side);
