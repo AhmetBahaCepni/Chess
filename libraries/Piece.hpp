@@ -15,19 +15,19 @@ class Piece {
         Piece& operator=(const Piece& other);
 
         // Getters and Setters
-        char getType();
-        int getX();
-        int getY();
+        char getType() const;
+        int getX() const;
+        int getY() const;
 
         // Other functions
         void insertMove(int x, int y);
         void clearMoves();
         
         // Fundamental functions
-        double getPoint();
+        double getPoint() const;
         std::vector<std::string> getMoves();
-        bool getColor();
-        bool getUnderAttack();
+        bool getColor() const;
+        bool getUnderAttack() const;
         void setType(char type);
         void setUnderAttack(bool isUnderAttack);
         void setCoords(int x, int y);

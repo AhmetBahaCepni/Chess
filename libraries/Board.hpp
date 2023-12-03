@@ -12,23 +12,22 @@ class Board{
         // Constructors and Destructors and Operators
         Board();
         ~Board();
-        Board(Board& other);
-        Board& operator=(Board& other);
-        friend std::ostream& operator<<(std::ostream& os, Board& board);
+        Board(const Board& other);
+        Board& operator=(const Board& other);
+        friend std::ostream& operator<<(std::ostream& os, const Board& board);
 
         // void printBoard(); overloading operator<< already does this
         
         // Fundamental functions
-        std::string takeInput();
-        std::vector<std::vector<Piece>> copyBoard(std::vector<std::vector<Piece>> &other);
-        std::vector<std::vector<bool>> copyThreats(std::vector<std::vector<bool>> &other);
-        Piece& getPiece(int x, int y);
+        std::string takeInput(); 
+        std::vector<std::vector<Piece>> copyBoard(const std::vector<std::vector<Piece>> &other) const;
+        std::vector<std::vector<bool>> copyThreats(const std::vector<std::vector<bool>> &other) const;
         void updateBoard();
         
         // Validate and Check functions
 
         bool isValidMove(std::string input);
-        bool checkPath(int Sx, int Sy, int Ex, int Ey);
+        bool checkPath(int Sx, int Sy, int Ex, int Ey) const;
         bool pieceChecks(int Sx, int Sy, int Ex, int Ey);
         
         // Action functions
@@ -44,16 +43,15 @@ class Board{
         void fillThCell(int x, int y, bool color, Piece &p);
         void rookThreads(Piece &p);
         void bishopThreads(Piece &p);
-        void printThreads(bool color);
-        bool isSafe(int x, int y, bool color);
+        bool isSafe(int x, int y, bool color) const;
 
         // Checkmate functions
         bool isCheck(bool color);
         bool isCheckMate(bool color);
         Piece& findKing(bool color);
-        bool kingHasMoves(Piece &king);
+        bool kingHasMoves(const Piece &king);
         bool kingCanGo(int x, int y, bool color);
-        bool kingCanBeSaved(Piece &king);
+        bool kingCanBeSaved(const Piece &king);
         
 
         // Point functions
@@ -67,26 +65,27 @@ class Board{
         void castle(bool color, bool side);
 
         // file functions
-        void saveGame();
+        void saveGame() const;
         void loadGame();
 
         // Helper functions
-        int getPoint(char type);
+        Piece& getPiece(int x, int y);
+        int getPoint(char type) const;
         bool isOpponent(int x, int y);
         bool isOpponent(int x, int y, bool color);
         bool isFriend(int x, int y);
         bool isFriend(int x, int y, bool color);
 
         // Inline functions
-        int min(int a, int b) { return (a < b) ? a : b; }
-        int max(int a, int b) { return (a > b) ? a : b; }
+        int min(int a, int b) const { return (a < b) ? a : b; }
+        int max(int a, int b) const { return (a > b) ? a : b; }
         void nextTurn() { turn = !turn; }
-        bool whoTurn() { return turn; }
-        bool isGameOver() { return gameOver; }
+        bool whoTurn() const { return turn; }
+        bool isGameOver() const { return gameOver; }
         void setGameOver(bool state) { gameOver = state; }
         void setCheck(int state) { check = state; }
-        int getCheck() { return check; }
-        bool isPiece(int x, int y) { return board[y][x].getType() != '.'; }
+        int getCheck() const { return check; }
+        bool isPiece(int x, int y) const { return board[y][x].getType() != '.'; }
 
     private:
         std::vector< std::vector<Piece> > board;

@@ -57,7 +57,7 @@ Board::~Board()
     // we don't need to delete anything here because we only work with vectors
 }
 
-Board::Board(Board &other)
+Board::Board(const Board &other)
 {
     if (this != &other)
     {
@@ -65,7 +65,7 @@ Board::Board(Board &other)
     }
 }
 
-Board &Board::operator=(Board &other) // this should be a deep copy
+Board &Board::operator=(const Board &other) // this should be a deep copy
 {
     if (this != &other)
     {
@@ -86,7 +86,7 @@ Board &Board::operator=(Board &other) // this should be a deep copy
     return *this;
 }
 
-std::vector<std::vector<Piece>> Board::copyBoard(std::vector<std::vector<Piece>> &other)
+std::vector<std::vector<Piece>> Board::copyBoard(const std::vector<std::vector<Piece>> &other) const 
 {
     std::vector<std::vector<Piece>> _board(8, std::vector<Piece>(8));
 
@@ -100,7 +100,7 @@ std::vector<std::vector<Piece>> Board::copyBoard(std::vector<std::vector<Piece>>
     return _board;
 }
 
-std::vector<std::vector<bool>> Board::copyThreats(std::vector<std::vector<bool>> &other)
+std::vector<std::vector<bool>> Board::copyThreats(const std::vector<std::vector<bool>> &other) const
 {
     std::vector<std::vector<bool>> _threads(8, std::vector<bool>(8));
 
@@ -115,7 +115,7 @@ std::vector<std::vector<bool>> Board::copyThreats(std::vector<std::vector<bool>>
 }
 
 // we overload the << operator to print the board
-std::ostream &operator<<(std::ostream &os, Board &board)
+std::ostream &operator<<(std::ostream &os,const Board &board)
 {
     std::cout << "---------------------------" << std::endl;
     std::cout << "current points (W-B):  " << board.points[1] << " - " << board.points[0] << std::endl;

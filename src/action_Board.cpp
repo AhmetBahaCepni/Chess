@@ -180,7 +180,7 @@ bool Board::pieceChecks(int Sx, int Sy, int Ex, int Ey)
     return true;
 }
 
-bool Board::checkPath(int Sx, int Sy, int Ex, int Ey)
+bool Board::checkPath(int Sx, int Sy, int Ex, int Ey) const
 {
     int minX, maxX, minY, maxY;
 
@@ -208,7 +208,6 @@ bool Board::checkPath(int Sx, int Sy, int Ex, int Ey)
     {
         if ((Sx - Ex > 0 && Sy - Ey > 0) || (Sx - Ex < 0 && Sy - Ey < 0))
         {
-            std::cout << "diagonal 1" << std::endl;
             minX = min(Sx, Ex);
             minY = min(Sy, Ey);
             maxX = max(Sx, Ex);
@@ -227,7 +226,6 @@ bool Board::checkPath(int Sx, int Sy, int Ex, int Ey)
         }
         else
         {
-            std::cout << "diagonal 2" << std::endl;
             minX = min(Sx, Ex);
             minY = max(Sy, Ey);
             maxX = max(Sx, Ex);
@@ -301,10 +299,6 @@ void Board::swapPieces(int Sx, int Sy, int Ex, int Ey)
 
 void Board::updatePieces()
 {
-    std::ofstream moveFile;
-    moveFile.open("move.txt");
-    moveFile.clear(); // to 
-
     for (auto &line : board)
     {
         for (auto &piece : line)
@@ -325,17 +319,9 @@ void Board::updatePieces()
                 {
                     piece.setUnderAttack(false);
                 }
-
-                // how to open a file in append mode 
-
-                for(std::string move : piece.getMoves())
-                {
-                    moveFile << piece.getType() << " " << piece.getX() << piece.getY() << "--> " << move << std::endl;
-                }
             }
         }
     }
-    moveFile.close();
 }
 
 void Board::updateBoard()

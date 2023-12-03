@@ -22,7 +22,7 @@ void Board::calculatePoints()
     points[1] = wPoints;
 }
 
-int Board::getPoint(char type)
+int Board::getPoint(char type) const
 {
     switch (type)
     {

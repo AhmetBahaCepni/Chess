@@ -1,7 +1,7 @@
 #include "../libraries/Board.hpp"
 
 
-void Board::saveGame()
+void Board::saveGame() const
 {
     std::ofstream file;
     file.open("log/save.txt");

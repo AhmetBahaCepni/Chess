@@ -64,27 +64,27 @@ std::vector<std::string> Piece::getMoves()
     return moves;
 }
 
-char Piece::getType() {
+char Piece::getType() const {
     return this->type;
 }
 
-bool Piece::getColor() {
+bool Piece::getColor() const {
     return this->color;
 }
 
-int Piece::getX() {
+int Piece::getX() const {
     return this->x;
 }
 
-int Piece::getY() {
+int Piece::getY() const {
     return this->y;
 }
 
-double Piece::getPoint() {
+double Piece::getPoint() const {
     return this->point;
 }
 
-bool Piece::getUnderAttack() {
+bool Piece::getUnderAttack() const {
     return this->isUnderAttack;
 }
 

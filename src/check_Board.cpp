@@ -1,6 +1,6 @@
 #include "../libraries/Board.hpp"
 
-bool Board::isSafe(int x, int y, bool color)
+bool Board::isSafe(int x, int y, bool color) const
 {
     if (x < 0 || x > 7 || y < 0 || y > 7) // if out of bounds
         return false;
@@ -39,7 +39,7 @@ bool Board::isCheckMate(bool color)
     return true;
 }
 
-bool Board::kingHasMoves(Piece &king)
+bool Board::kingHasMoves(const Piece &king)
 {
     int x = king.getX();
     int y = king.getY();
@@ -74,7 +74,7 @@ bool Board::kingCanGo(int x, int y, bool color)
     return false;
 }
 
-bool Board::kingCanBeSaved(Piece &king)
+bool Board::kingCanBeSaved(const Piece &king)
 {
     for (auto &line : board)
     {
@@ -113,6 +113,5 @@ Piece &Board::findKing(bool color)
                 return piece;
         }
     }
-    std::cout << "!!!!!!!!!! This should not happen 5!!!!!!!!!!" << std::endl;
     return board[0][0];
 }
