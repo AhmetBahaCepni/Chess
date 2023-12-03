@@ -1,9 +1,9 @@
-r.bq.b.r
-pp..p..p
-..kp..Q.
-..p..p..
-........
-....P...
-PPPP.PPP
-RNB.K.NR
+rnbqkbnr
+.pp.p..p
+p....pp.
+...p...Q
+..P.....
+P...P...
+.P.P.PPP
+RNB.KBNR
 1

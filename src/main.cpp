@@ -68,7 +68,9 @@ void fileOperations(Board& board)
         std::cin >> answer;
         if(answer == 'y')
         {
+            std::cout << "Loading game..." << std::endl;
             board.loadGame();
+            std::cout << board.whoTurn() << std::endl;
         }
     }
 }
@@ -90,7 +92,9 @@ int main(void)
     Board board;
     bool winner;
 
+    std::cout << "Welcome to Chess!" << std::endl;
     fileOperations(board);
+    std::cout << "sdaljakşiş" << std::endl;
     winner = gameLoop(board);
     winnerMessage(winner);
 

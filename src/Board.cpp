@@ -177,6 +177,16 @@ std::string Board::takeInput()
         std::cout << "Turn is " << (whoTurn() ? "White" : "Black") << ". Enter your move: " << std::endl
                   << ">> ";
         std::cin >> input;
+        if(input == "save")
+        {
+            saveGame();
+            continue;
+        }
+        if(input == "suggest")
+        {
+            suggestMove(whoTurn());
+            continue;
+        }
         if (input.length() == 4 && (input[0] >= 'a' && input[0] <= 'h' && input[1] >= '1' && input[1] <= '8' && input[2] >= 'a' && input[2] <= 'h' && input[3] >= '1' && input[3] <= '8'))
         {
             break;
@@ -192,6 +202,10 @@ std::string Board::takeInput()
 
 void Board::updatePieces()
 {
+    std::ofstream moveFile;
+    moveFile.open("move.txt");
+    moveFile.clear(); // to 
+
     for (auto &line : board)
     {
         for (auto &piece : line)
@@ -212,9 +226,17 @@ void Board::updatePieces()
                 {
                     piece.setUnderAttack(false);
                 }
+
+                // how to open a file in append mode 
+
+                for(std::string move : piece.getMoves())
+                {
+                    moveFile << piece.getType() << " " << piece.getX() << piece.getY() << "--> " << move << std::endl;
+                }
             }
         }
     }
+    moveFile.close();
 }
 
 void Board::updateBoard()
@@ -239,12 +261,15 @@ void Board::fillThreads()
         for (auto &piece : line)
         {
             if (piece.getType() != '.')
+            {
+                piece.clearMoves();
                 findAndFill(piece);
+            }
         }
     }
 }
 
-void Board::fillThCell(int x, int y, bool color)
+void Board::fillThCell(int x, int y, bool color, Piece &p) // p here is attacker but x and y are the cell we are filling
 {
     if (x < 0 || x > 7 || y < 0 || y > 7)
         return;
@@ -253,6 +278,17 @@ void Board::fillThCell(int x, int y, bool color)
     else
         bThreads[y][x] = 1;
     
+    if(p.getType() != '.')
+    {
+        if(p.getType() != 'p' && p.getType() != 'P' && !isFriend(x, y, p.getColor())) 
+        {
+            p.insertMove(x, y);
+        }
+        else if((p.getType() == 'p' ||  p.getType() == 'P') && isOpponent(x, y, p.getColor()))
+        {
+            p.insertMove(x, y);
+        }
+    }
     // if (!isFriend(x, y, color))
     // {
     //     if (color)
@@ -266,25 +302,25 @@ void Board::rookThreads(Piece &p)
 {
     for (int i = p.getX() + 1; i < 8; i++)
     {
-        fillThCell(i, p.getY(), p.getColor());
+        fillThCell(i, p.getY(), p.getColor(), p);
         if (isPiece(i, p.getY()))
             break;
     }
     for (int i = p.getX() - 1; i >= 0; i--)
     {
-        fillThCell(i, p.getY(), p.getColor());
+        fillThCell(i, p.getY(), p.getColor(), p);
         if (isPiece(i, p.getY()))
             break;
     }
     for (int i = p.getY() + 1; i < 8; i++)
     {
-        fillThCell(p.getX(), i, p.getColor());
+        fillThCell(p.getX(), i, p.getColor(), p);
         if (isPiece(p.getX(), i))
             break;
     }
     for (int i = p.getY() - 1; i >= 0; i--)
     {
-        fillThCell(p.getX(), i, p.getColor());
+        fillThCell(p.getX(), i, p.getColor(), p);
         if (isPiece(p.getX(), i))
             break;
     }
@@ -294,25 +330,25 @@ void Board::bishopThreads(Piece &p)
 {
     for (int i = p.getX() + 1, j = p.getY() + 1; i < 8 && j < 8; i++, j++)
     {
-        fillThCell(i, j, p.getColor());
+        fillThCell(i, j, p.getColor(), p);
         if (isPiece(i, j))
             break;
     }
     for (int i = p.getX() - 1, j = p.getY() + 1; i >= 0 && j < 8; i--, j++)
     {
-        fillThCell(i, j, p.getColor());
+        fillThCell(i, j, p.getColor(), p);
         if (isPiece(i, j))
             break;
     }
     for (int i = p.getX() + 1, j = p.getY() - 1; i < 8 && j >= 0; i++, j--)
     {
-        fillThCell(i, j, p.getColor());
+        fillThCell(i, j, p.getColor(), p);
         if (isPiece(i, j))
             break;
     }
     for (int i = p.getX() - 1, j = p.getY() - 1; i >= 0 && j >= 0; i--, j--)
     {
-        fillThCell(i, j, p.getColor());
+        fillThCell(i, j, p.getColor(), p);
         if (isPiece(i, j))
             break;
     }
@@ -327,12 +363,26 @@ void Board::findAndFill(Piece &p)
     switch (type)
     {
     case 80: // P
-        fillThCell(p.getX() + 1, p.getY() + 1, p.getColor());
-        fillThCell(p.getX() - 1, p.getY() + 1, p.getColor());
+        fillThCell(p.getX() + 1, p.getY() + 1, p.getColor(), p);
+        fillThCell(p.getX() - 1, p.getY() + 1, p.getColor(), p);
+        if(!isPiece(p.getX(), p.getY() + 1))
+        {
+            p.insertMove(p.getX(), p.getY() + 1);
+            if(p.getY() == 1 && !isPiece(p.getX(), p.getY() + 2))
+                p.insertMove(p.getX(), p.getY() + 2);
+        }
         break;
     case 112: // p
-        fillThCell(p.getX() + 1, p.getY() - 1, p.getColor());
-        fillThCell(p.getX() - 1, p.getY() - 1, p.getColor());
+        fillThCell(p.getX() + 1, p.getY() - 1, p.getColor(), p);
+        fillThCell(p.getX() - 1, p.getY() - 1, p.getColor(), p);
+        if(!isPiece(p.getX(), p.getY() - 1))
+        {
+            p.insertMove(p.getX(), p.getY() - 1);
+            if(p.getY() == 6 && !isPiece(p.getX(), p.getY() - 2))
+                p.insertMove(p.getX(), p.getY() - 2);
+        }
+        break;
+
         break;
     case 114: // r
         rookThreads(p);
@@ -345,24 +395,24 @@ void Board::findAndFill(Piece &p)
         bishopThreads(p);
         break;
     case 107: // k
-        fillThCell(p.getX() + 1, p.getY() + 1, p.getColor());
-        fillThCell(p.getX() - 1, p.getY() + 1, p.getColor());
-        fillThCell(p.getX() + 1, p.getY() - 1, p.getColor());
-        fillThCell(p.getX() - 1, p.getY() - 1, p.getColor());
-        fillThCell(p.getX() + 1, p.getY(), p.getColor());
-        fillThCell(p.getX() - 1, p.getY(), p.getColor());
-        fillThCell(p.getX(), p.getY() + 1, p.getColor());
-        fillThCell(p.getX(), p.getY() - 1, p.getColor());
+        fillThCell(p.getX() + 1, p.getY() + 1, p.getColor(), p);
+        fillThCell(p.getX() - 1, p.getY() + 1, p.getColor(), p);
+        fillThCell(p.getX() + 1, p.getY() - 1, p.getColor(), p);
+        fillThCell(p.getX() - 1, p.getY() - 1, p.getColor(), p);
+        fillThCell(p.getX() + 1, p.getY(), p.getColor(), p);
+        fillThCell(p.getX() - 1, p.getY(), p.getColor(), p);
+        fillThCell(p.getX(), p.getY() + 1, p.getColor(), p);
+        fillThCell(p.getX(), p.getY() - 1, p.getColor(), p);
         break;
     case 110: // n
-        fillThCell(p.getX() + 2, p.getY() + 1, p.getColor());
-        fillThCell(p.getX() + 2, p.getY() - 1, p.getColor());
-        fillThCell(p.getX() - 2, p.getY() + 1, p.getColor());
-        fillThCell(p.getX() - 2, p.getY() - 1, p.getColor());
-        fillThCell(p.getX() + 1, p.getY() + 2, p.getColor());
-        fillThCell(p.getX() + 1, p.getY() - 2, p.getColor());
-        fillThCell(p.getX() - 1, p.getY() + 2, p.getColor());
-        fillThCell(p.getX() - 1, p.getY() - 2, p.getColor());
+        fillThCell(p.getX() + 2, p.getY() + 1, p.getColor(), p);
+        fillThCell(p.getX() + 2, p.getY() - 1, p.getColor(), p);
+        fillThCell(p.getX() - 2, p.getY() + 1, p.getColor(), p);
+        fillThCell(p.getX() - 2, p.getY() - 1, p.getColor(), p);
+        fillThCell(p.getX() + 1, p.getY() + 2, p.getColor(), p);
+        fillThCell(p.getX() + 1, p.getY() - 2, p.getColor(), p);
+        fillThCell(p.getX() - 1, p.getY() + 2, p.getColor(), p);
+        fillThCell(p.getX() - 1, p.getY() - 2, p.getColor(), p);
         break;
     default:
         std::cout << "!!!!!!!!!! This should not happen !!!!!!!!!!" << std::endl;
@@ -375,7 +425,6 @@ bool Board::isSafe(int x, int y, bool color)
 {
     if (x < 0 || x > 7 || y < 0 || y > 7) // if out of bounds
         return false;
-    std::cout << "in bound again" << std::endl;
     if(color)
     {
         if(bThreads[y][x])
@@ -386,7 +435,6 @@ bool Board::isSafe(int x, int y, bool color)
         if(wThreads[y][x])
             return false;
     }   
-    std::cout << x << y << "fully safe" << std::endl;
     return true;
 }
 
@@ -606,8 +654,6 @@ void Board::undoMove(std::string input)
     int endX = input[2] - 'a';
     int endY = input[3] - '1';
 
-    std::cout << "UNDO MOVE ====> ";
-    std::cout << startX << startY << endX << endY << std::endl;
     swapPieces(startX, startY, endX, endY);
     updateBoard();
 }
@@ -639,10 +685,6 @@ bool Board::isCheck(bool color)
     int x = king.getX();
     int y = king.getY();
 
-    std::cout << "king is at " << x << y << std::endl;
-    std::cout << "king is " << king.getType() << std::endl;
-    std::cout << "king is " << (king.getColor() ? "white" : "black") << std::endl;
-    std::cout << "king is " << king.getUnderAttack() << std::endl;
     if(king.getUnderAttack())
         return true;
     else
@@ -700,276 +742,273 @@ bool Board::kingCanGo(int x, int y, bool color)
 
 bool Board::kingCanBeSaved(Piece &king)
 {
-    std::vector<Piece> attackers = findAttackers(king);   
-
-    std::cout << "attackers size is " << attackers.size() << std::endl;
-    if (attackers.size() == 0)
+    for (auto &line : board)
     {
-        std::cout << "!!!!!!!!!! This should not happen 9!!!!!!!!!!" << std::endl;
-        return false;
+        for (auto &piece : line)
+        {
+            if (piece.getType() != 'k' && piece.getType() == 'K' && isFriend(piece.getX(), piece.getY(), king.getColor()))
+            {
+                for (auto &move : piece.getMoves())
+                {
+                    std::string input = "";
+                    input += (char)(piece.getX() + 'a');
+                    input += (char)(piece.getY() + '1');
+                    input += move;
+                    movePiece(input);
+                    updateBoard();
+                    if (!isCheck(king.getColor()))
+                    {
+                        undoMove(input);
+                        updateBoard();
+                        return true;
+                    }
+                    undoMove(input);
+                    updateBoard();
+                }
+            }
+        }
     }
-    if (attackers.size() > 1)
-        return false;
-
-    std::cout << "attackers size is " << attackers.size() << std::endl;
-    
-    Piece &attacker = attackers[0];
-    int x = attacker.getX();
-    int y = attacker.getY();
-
-    // now we know the attacker and we should check if it can be hit
-
-    std::cout << "attacker is " << attacker.getType() << std::endl;
-    if(!isSafe(x, y, attacker.getColor())) // if the attacker can be hit
-        return true;
-
-    std::cout << "attacker can't be hit" << std::endl;
-    // now we should check if we can get between the attacker and the king
-    std::cout << "attacker is at " << x << y << std::endl; 
-    if(checkAttackerPath(attacker, king))
-        return true;
-
 
     return false;
 }
 
-bool Board::checkAttackerPath(Piece &attacker, Piece &king) // piece is usually king
-{
-    int minX, maxX, minY, maxY;
-    bool color = king.getColor();
-    std::vector<std::vector<bool>> friendThreats = (color ? wThreads : bThreads);
+// bool Board::checkAttackerPath(Piece &attacker, Piece &king) // piece is usually king
+// {
+//     int minX, maxX, minY, maxY;
+//     bool color = king.getColor();
+//     std::vector<std::vector<bool>> friendThreats = (color ? wThreads : bThreads);
 
-    if (king.getX() == attacker.getX())
-    {
-        std::cout << "same x checkCOntrol" << std::endl;
-        minY = min(king.getY(), attacker.getY());
-        maxY = max(king.getY(), attacker.getY());
-        for (int i = minY + 1; i < maxY; i++)
-        {
-            if (friendThreats[i][king.getX()])
-                return true;
-        }
-    }
-    else if (king.getY() == attacker.getY())
-    {
-        std::cout << "same y checkCOntrol" << std::endl;
-        minX = min(king.getX(), attacker.getX());
-        maxX = max(king.getX(), attacker.getX());
-        for (int i = minX + 1; i < maxX; i++)
-        {
-            if (friendThreats[king.getY()][i])
-                return true;
-        }
-    }
-    else if (abs(king.getX() - attacker.getX()) == abs(king.getY() - attacker.getY()))
-    {
-        std::cout << "diagonal checkCOntrol" << std::endl;
-        if ((king.getX() - attacker.getX() > 0 && king.getY() - attacker.getY() > 0) || (king.getX() - attacker.getX() < 0 && king.getY() - attacker.getY() < 0))
-        {
-            minX = min(king.getX(), attacker.getX());
-            minY = min(king.getY(), attacker.getY());
-            maxX = max(king.getX(), attacker.getX());
-            maxY = max(king.getY(), attacker.getY());
+//     if (king.getX() == attacker.getX())
+//     {
+//         std::cout << "same x checkCOntrol" << std::endl;
+//         minY = min(king.getY(), attacker.getY());
+//         maxY = max(king.getY(), attacker.getY());
+//         for (int i = minY + 1; i < maxY; i++)
+//         {
+//             if (friendThreats[i][king.getX()])
+//                 return true;
+//         }
+//     }
+//     else if (king.getY() == attacker.getY())
+//     {
+//         std::cout << "same y checkCOntrol" << std::endl;
+//         minX = min(king.getX(), attacker.getX());
+//         maxX = max(king.getX(), attacker.getX());
+//         for (int i = minX + 1; i < maxX; i++)
+//         {
+//             if (friendThreats[king.getY()][i])
+//                 return true;
+//         }
+//     }
+//     else if (abs(king.getX() - attacker.getX()) == abs(king.getY() - attacker.getY()))
+//     {
+//         std::cout << "diagonal checkCOntrol" << std::endl;
+//         if ((king.getX() - attacker.getX() > 0 && king.getY() - attacker.getY() > 0) || (king.getX() - attacker.getX() < 0 && king.getY() - attacker.getY() < 0))
+//         {
+//             minX = min(king.getX(), attacker.getX());
+//             minY = min(king.getY(), attacker.getY());
+//             maxX = max(king.getX(), attacker.getX());
+//             maxY = max(king.getY(), attacker.getY());
 
-            minX++;
-            minY++;
-            while (minX < maxX && minY < maxY)
-            {
-                if (friendThreats[minY][minX])
-                    return true;
-                minY++;
-                minX++;
-            }
-        }
-        else
-        {
-            minX = min(king.getX(), attacker.getX());
-            minY = max(king.getY(), attacker.getY());
-            maxX = max(king.getX(), attacker.getX());
-            maxY = min(king.getY(), attacker.getY());
+//             minX++;
+//             minY++;
+//             while (minX < maxX && minY < maxY)
+//             {
+//                 if (friendThreats[minY][minX])
+//                     return true;
+//                 minY++;
+//                 minX++;
+//             }
+//         }
+//         else
+//         {
+//             minX = min(king.getX(), attacker.getX());
+//             minY = max(king.getY(), attacker.getY());
+//             maxX = max(king.getX(), attacker.getX());
+//             maxY = min(king.getY(), attacker.getY());
 
-            minX++;
-            minY--;
-            while (minX < maxX && minY > maxY)
-            {
-                if (friendThreats[minY][minX])
-                    return true;
-                minX++;
-                minY--;
-            }
-        }
-    }
-    return false;
-}
+//             minX++;
+//             minY--;
+//             while (minX < maxX && minY > maxY)
+//             {
+//                 if (friendThreats[minY][minX])
+//                     return true;
+//                 minX++;
+//                 minY--;
+//             }
+//         }
+//     }
+//     return false;
+// }
 
-std::vector<Piece> Board::findAttackers(Piece &piece)
-{
-    std::vector<Piece> attackers;
-    std::vector<Piece> straightAttackers;
-    std::vector<Piece> diagonalAttackers;
-    int x = piece.getX();
-    int y = piece.getY();
+// std::vector<Piece> Board::findAttackers(Piece &piece)
+// {
+//     std::vector<Piece> attackers;
+//     std::vector<Piece> straightAttackers;
+//     std::vector<Piece> diagonalAttackers;
+//     int x = piece.getX();
+//     int y = piece.getY();
 
-    straightAttackers = findStraightAttackers(piece);
-    diagonalAttackers = findDiagonalAttackers(piece);
+//     straightAttackers = findStraightAttackers(piece);
+//     diagonalAttackers = findDiagonalAttackers(piece);
 
-    for (auto &attacker : straightAttackers)
-    {
-        attackers.push_back(attacker);
-    }
-    for (auto &attacker : diagonalAttackers)
-    {
-        attackers.push_back(attacker);
-    }
+//     for (auto &attacker : straightAttackers)
+//     {
+//         attackers.push_back(attacker);
+//     }
+//     for (auto &attacker : diagonalAttackers)
+//     {
+//         attackers.push_back(attacker);
+//     }
 
-    if(attackers.size() == 0)
-        std::cout << "no attackers" << std::endl;
-    else
-        std::cout << "attackers found" << std::endl;
+//     if(attackers.size() == 0)
+//         std::cout << "no attackers" << std::endl;
+//     else
+//         std::cout << "attackers found" << std::endl;
 
-    return attackers;
-}
+//     return attackers;
+// }
 
-std::vector<Piece> Board::findStraightAttackers(Piece &piece)
-{
-    std::vector<Piece> attackers;
-    std::vector<std::vector<bool>> threats;
-    bool pColor = piece.getColor();
-    int x = piece.getX();
-    int y = piece.getY();
+// std::vector<Piece> Board::findStraightAttackers(Piece &piece)
+// {
+//     std::vector<Piece> attackers;
+//     std::vector<std::vector<bool>> threats;
+//     bool pColor = piece.getColor();
+//     int x = piece.getX();
+//     int y = piece.getY();
 
 
-    threats = (pColor ? bThreads : wThreads);
+//     threats = (pColor ? bThreads : wThreads);
 
-    for (int i = x + 1; i < 8; i++)
-    {
-        if(threats[y][i])
-        {
-            if(isOpponent(i, y, pColor))
-                attackers.push_back(getPiece(i, y));
-        }
-        else
-        {
-            if(isOpponent(i, y, pColor))
-                attackers.push_back(getPiece(i, y));
-            break;
-        }
-    }
-    for (int i = x - 1; i >= 0; i--)
-    {
-        if(threats[y][i])
-        {
-            if(isOpponent(i, y, pColor))
-                attackers.push_back(getPiece(i, y));
-        }
-        else
-        {
-            if(isOpponent(i, y, pColor))
-                attackers.push_back(getPiece(i, y));
-            break;
-        }
-    }
-    for (int i = y + 1; i < 8; i++)
-    {
-        if(threats[i][x])
-        {
-            if(isOpponent(x, i, pColor))
-                attackers.push_back(getPiece(x, i));
-        }
-        else
-        {
-            if(isOpponent(x, i, pColor))
-                attackers.push_back(getPiece(x, i));
-            break;
-        }
-    }
-    for (int i = y - 1; i >= 0; i--)
-    {
-        if(threats[i][x])
-        {
-            if(isOpponent(x, i, pColor))
-                attackers.push_back(getPiece(x, i));
-        }
-        else
-        {
-            if(isOpponent(x, i, pColor))
-                attackers.push_back(getPiece(x, i));
-            break;
-        }
-    }
+//     for (int i = x + 1; i < 8; i++)
+//     {
+//         if(threats[y][i])
+//         {
+//             if(isOpponent(i, y, pColor))
+//                 attackers.push_back(getPiece(i, y));
+//         }
+//         else
+//         {
+//             if(isOpponent(i, y, pColor))
+//                 attackers.push_back(getPiece(i, y));
+//             break;
+//         }
+//     }
+//     for (int i = x - 1; i >= 0; i--)
+//     {
+//         if(threats[y][i])
+//         {
+//             if(isOpponent(i, y, pColor))
+//                 attackers.push_back(getPiece(i, y));
+//         }
+//         else
+//         {
+//             if(isOpponent(i, y, pColor))
+//                 attackers.push_back(getPiece(i, y));
+//             break;
+//         }
+//     }
+//     for (int i = y + 1; i < 8; i++)
+//     {
+//         if(threats[i][x])
+//         {
+//             if(isOpponent(x, i, pColor))
+//                 attackers.push_back(getPiece(x, i));
+//         }
+//         else
+//         {
+//             if(isOpponent(x, i, pColor))
+//                 attackers.push_back(getPiece(x, i));
+//             break;
+//         }
+//     }
+//     for (int i = y - 1; i >= 0; i--)
+//     {
+//         if(threats[i][x])
+//         {
+//             if(isOpponent(x, i, pColor))
+//                 attackers.push_back(getPiece(x, i));
+//         }
+//         else
+//         {
+//             if(isOpponent(x, i, pColor))
+//                 attackers.push_back(getPiece(x, i));
+//             break;
+//         }
+//     }
 
-    return attackers;
-}
+//     return attackers;
+// }
 
-std::vector<Piece> Board::findDiagonalAttackers(Piece &piece)
-{
-    std::vector<Piece> attackers;
-    std::vector<std::vector<bool>> threats;
-    bool pColor = piece.getColor();
-    int x = piece.getX();
-    int y = piece.getY();
+// std::vector<Piece> Board::findDiagonalAttackers(Piece &piece)
+// {
+//     std::vector<Piece> attackers;
+//     std::vector<std::vector<bool>> threats;
+//     bool pColor = piece.getColor();
+//     int x = piece.getX();
+//     int y = piece.getY();
 
-    threats = (pColor ? bThreads : wThreads);
+//     threats = (pColor ? bThreads : wThreads);
 
-    for (int i = x + 1, j = y + 1; i < 8 && j < 8; i++, j++)
-    {
-        if(threats[j][i])
-        {
-            if(isOpponent(i, j, pColor))
-                attackers.push_back(getPiece(i, j));
-        }
-        else
-        {
-            if(isOpponent(i, j, pColor))
-                attackers.push_back(getPiece(i, j));
-            break;
-        }
-    }
-    for (int i = x - 1, j = y + 1; i >= 0 && j < 8; i--, j++)
-    {
-        if(threats[j][i])
-        {
-            if(isOpponent(i, j, pColor))
-                attackers.push_back(getPiece(i, j));
-        }
-        else
-        {
-            if(isOpponent(i, j, pColor))
-                attackers.push_back(getPiece(i, j));
-            break;
-        }
-    }
-    for (int i = x + 1, j = y - 1; i < 8 && j >= 0; i++, j--)
-    {
-        if(threats[j][i])
-        {
-            if(isOpponent(i, j, pColor))
-                attackers.push_back(getPiece(i, j));
-        }
-        else
-        {
-            if(isOpponent(i, j, pColor))
-                attackers.push_back(getPiece(i, j));
-            break;
-        }
-    }
-    for (int i = x - 1, j = y - 1; i >= 0 && j >= 0; i--, j--)
-    {
-        if(threats[j][i])
-        {
-            if(isOpponent(i, j, pColor))
-                attackers.push_back(getPiece(i, j));
-        }
-        else
-        {
-            if(isOpponent(i, j, pColor))
-                attackers.push_back(getPiece(i, j));
-            break;
-        }
-    }
+//     for (int i = x + 1, j = y + 1; i < 8 && j < 8; i++, j++)
+//     {
+//         if(threats[j][i])
+//         {
+//             if(isOpponent(i, j, pColor))
+//                 attackers.push_back(getPiece(i, j));
+//         }
+//         else
+//         {
+//             if(isOpponent(i, j, pColor))
+//                 attackers.push_back(getPiece(i, j));
+//             break;
+//         }
+//     }
+//     for (int i = x - 1, j = y + 1; i >= 0 && j < 8; i--, j++)
+//     {
+//         if(threats[j][i])
+//         {
+//             if(isOpponent(i, j, pColor))
+//                 attackers.push_back(getPiece(i, j));
+//         }
+//         else
+//         {
+//             if(isOpponent(i, j, pColor))
+//                 attackers.push_back(getPiece(i, j));
+//             break;
+//         }
+//     }
+//     for (int i = x + 1, j = y - 1; i < 8 && j >= 0; i++, j--)
+//     {
+//         if(threats[j][i])
+//         {
+//             if(isOpponent(i, j, pColor))
+//                 attackers.push_back(getPiece(i, j));
+//         }
+//         else
+//         {
+//             if(isOpponent(i, j, pColor))
+//                 attackers.push_back(getPiece(i, j));
+//             break;
+//         }
+//     }
+//     for (int i = x - 1, j = y - 1; i >= 0 && j >= 0; i--, j--)
+//     {
+//         if(threats[j][i])
+//         {
+//             if(isOpponent(i, j, pColor))
+//                 attackers.push_back(getPiece(i, j));
+//         }
+//         else
+//         {
+//             if(isOpponent(i, j, pColor))
+//                 attackers.push_back(getPiece(i, j));
+//             break;
+//         }
+//     }
 
-    return attackers;
-}
+//     return attackers;
+// }
 
 Piece &Board::findKing(bool color)
 {
@@ -1008,6 +1047,8 @@ void Board::calculatePoints()
     points[1] = bPoints;
 }
 
+// File IO functions -------------------------------------------------------------------------------------------------------------
+
 void Board::saveGame()
 {
     std::ofstream file;
@@ -1030,6 +1071,11 @@ void Board::loadGame()
 {
     std::ifstream file;
     file.open("save.txt");
+    if(!file.is_open())
+    {
+        std::cout << "no save file found" << std::endl;
+        return;
+    }
 
     std::vector<std::vector<Piece>> _board(8, std::vector<Piece>(8));
     std::vector<std::vector<bool>> _wThreads(8, std::vector<bool>(8));
@@ -1038,8 +1084,10 @@ void Board::loadGame()
 
     std::string line;
     int i = 7;
-    while (getline(file, line))
+    while (getline(file, line) && i >= 0)
     {
+        std::cout << "line is " << line << std::endl;
+
         for (int j = 0; j < 8; j++)
         {
             if (line[j] != '.')
@@ -1053,7 +1101,6 @@ void Board::loadGame()
         }
         i--;
     }
-    getline(file, line);
 
     this->turn = (line[0] == '1' ? 1 : 0);
     this->gameOver = 0;
@@ -1065,6 +1112,44 @@ void Board::loadGame()
 
     file.close();
 }
+
+// AI functions -----------------------------------------------------------------------------------------------------------------
+
+void Board::suggestMove(bool color)
+{
+    // std::vector<std::string> moves = findMoves(color);
+    // std::vector<std::string> bestMoves;
+    // double bestPoints = -1000;
+    // double points;
+    // std::string bestMove;
+
+    // for (auto &move : moves)
+    // {
+    //     points = evaluateMove(move, color);
+    //     if (points > bestPoints)
+    //     {
+    //         bestPoints = points;
+    //         bestMove = move;
+    //     }
+    // }
+    // for (auto &move : moves)
+    // {
+    //     points = evaluateMove(move, color);
+    //     if (points == bestPoints)
+    //     {
+    //         bestMoves.push_back(move);
+    //     }
+    // }
+    // srand(time(NULL));
+    // int random = rand() % bestMoves.size();
+    // std::cout << "best move is " << bestMoves[random] << std::endl;
+}
+
+
+
+
+
+// Setters and Getters -------------------------------------------------------------------------------------------------------------
 
 int Board::getPoint(char type)
 {

@@ -7,6 +7,7 @@ Piece::Piece() {
     this->point = 0;
     this->color = 0;
     this->isUnderAttack = false;
+    std::vector<std::string> moves;
 }
 
 Piece::Piece(char _type, bool color, int x, int y, double point) {
@@ -16,6 +17,7 @@ Piece::Piece(char _type, bool color, int x, int y, double point) {
     this->y = y;
     this->point = point;
     this->isUnderAttack = false;
+    std::vector<std::string> moves;
 }
 
 Piece::~Piece() {
@@ -34,8 +36,30 @@ Piece& Piece::operator=(const Piece& other) {
         this->y = other.y;
         this->point = other.point;
         this->isUnderAttack = other.isUnderAttack;
+        std::vector<std::string> _moves;
+        for(auto move : other.moves)
+            _moves.push_back(move);
+        this->moves = _moves;
     }
     return *this;
+}
+
+void Piece::insertMove(int x, int y)
+{
+    std::string move = "";
+    move += (char)(x + 'a');
+    move += (char)(y + '1');
+    moves.push_back(move);
+}
+
+void Piece::clearMoves()
+{
+    moves.clear();
+}
+
+std::vector<std::string> Piece::getMoves()
+{
+    return moves;
 }
 
 char Piece::getType() {
